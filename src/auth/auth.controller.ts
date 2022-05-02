@@ -12,7 +12,6 @@ import {
   UseGuards,
   Get,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller({
   path: 'auth',
@@ -30,6 +29,8 @@ export class AuthController {
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
+
+  @Public()
   @Post('register')
   async register(@Body() body: Register) {
     return await this.usersService.register(body);

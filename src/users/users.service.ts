@@ -1,3 +1,4 @@
+import { UserRepository } from './../repositories/user.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,41 +11,45 @@ import { Register } from './../inferfaces/register.interface';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+  constructor(private usersRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto) {
-    return await this.usersRepository.save(createUserDto);
+    const hash = await this.hashPassword(createUserDto.password);
+    createUserDto.password = hash;
+
+    return await this.usersRepository.saveOne(createUserDto);
   }
 
   async register(createUserDto: Register) {
-    const saltOrRounds = 10;
-    const password = createUserDto.password;
-    const hash = await bcrypt.hash(password, saltOrRounds);
+    const hash = await this.hashPassword(createUserDto.password);
     createUserDto.password = hash;
-    
-    return await this.usersRepository.save(createUserDto);
+
+    return await this.usersRepository.register(createUserDto);
   }
 
   async findOneByEmail(email: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ email });
+    return this.usersRepository.findByEmail(email);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.usersRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.usersRepository.findById(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return await this.usersRepository.updateOne(id, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    return await this.usersRepository.removeOne(id);
+  }
+
+  async hashPassword(password: string) {
+    const saltOrRounds = 10;
+    const hash = await bcrypt.hash(password, saltOrRounds);
+    return hash;
   }
 }
