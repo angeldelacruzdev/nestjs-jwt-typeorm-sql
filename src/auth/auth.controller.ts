@@ -1,9 +1,12 @@
+import { GetCurrentUser } from './../common/decorator/get-current-user.decorator';
+import { RtGuard } from './../common/guards/rt.guard';
+import { GetCurrentUserId } from './../common/decorator/get-current-user-id.decorator';
+import { Tokens } from './../types/tokens.type';
+import { CreateUserDto } from './../users/dto/create-user.dto';
+import { AuthDto } from './../dto/auth.dto';
 import { Public } from './../common/decorator/public.decorator';
-import { JwtAuthGuard } from './../common/guards/jwt-auth.guard';
-import { LocalAuthGuard } from './../common/guards/local-auth.guard';
 import { AuthService } from './auth.service';
-import { UsersService } from './../users/users.service';
-import { Register } from './../inferfaces/register.interface';
+
 import {
   Body,
   Controller,
@@ -11,34 +14,45 @@ import {
   Request,
   UseGuards,
   Get,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 
 @Controller({
   path: 'auth',
-  version: '1.0',
+  version: '1.0.2',
 })
 export class AuthController {
-  constructor(
-    private usersService: UsersService,
-    private authService: AuthService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Public()
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  @Post('/login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() dto: AuthDto) {
+    return await this.authService.login(dto);
   }
 
   @Public()
-  @Post('register')
-  async register(@Body() body: Register) {
-    return await this.usersService.register(body);
+  @Get('/register')
+  @HttpCode(HttpStatus.CREATED)
+  async register(@Body() dto: CreateUserDto): Promise<Tokens> {
+    return await this.authService.register(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  @Post('/logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@GetCurrentUserId() userId: number) {
+    return await this.authService.logout(userId);
+  }
+
+  @Public()
+  @UseGuards(RtGuard)
+  @Post('/refresh')
+  @HttpCode(HttpStatus.OK)
+  async refreshTokens(
+    @GetCurrentUser('refreshToken') refreshToken: string,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return await this.authService.refreshTokens(userId, refreshToken);
   }
 }

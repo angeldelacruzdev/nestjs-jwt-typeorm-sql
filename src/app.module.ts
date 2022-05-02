@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { AtGuard } from './common/guards/at.guard';
 import { DatabaseModule } from './database/database.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
@@ -13,7 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard,
+      useClass: AtGuard,
     },
     AppService,
   ],

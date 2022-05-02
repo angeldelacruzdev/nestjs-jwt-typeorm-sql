@@ -17,6 +17,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ default: null })
+  hashdRt: string | null;
+
   @Column({ default: true })
   isActive: boolean;
 }
