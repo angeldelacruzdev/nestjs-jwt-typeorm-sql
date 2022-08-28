@@ -1,13 +1,12 @@
 import { UpdateUserDto } from './../users/dto/update-user.dto';
 import { CreateUserDto } from './../users/dto/create-user.dto';
 import { verify } from 'crypto';
-import { EntityRepository, Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
+import { Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
 
-@EntityRepository(User)
 export class UserRepository extends Repository<User> {
   async findByEmail(email: string) {
-    return await this.findOne({ email });
+    return await this.findOneBy({ email });
   }
 
   async saveOne(dto: CreateUserDto) {
@@ -19,7 +18,7 @@ export class UserRepository extends Repository<User> {
   }
 
   async findById(id: number) {
-    return await this.findOne(id);
+    return await this.findById(id);
   }
 
   async updateOne(id: number, dto: UpdateUserDto) {

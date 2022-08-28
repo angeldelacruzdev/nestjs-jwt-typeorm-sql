@@ -56,6 +56,9 @@ export class AuthService {
   //Registro de usuario
   async register(dto: CreateUserDto): Promise<Tokens> {
     dto.password = await this.hashPassword(dto.password);
+
+    
+
     const user = await this.userService.create(dto);
 
     const tokens = await this.getTokens(user.id, user.email);
