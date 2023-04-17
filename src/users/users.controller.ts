@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,13 +16,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
-  async findMany() {
-    return await this.usersService.findMany();
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
@@ -31,18 +30,13 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Put(':id/reset-password')
-  resetPassword(@Param('id') id: number) {
-    console.log(id);
-  }
-
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return await this.usersService.remove(id);
+  remove(@Param('id') id: number) {
+    return this.usersService.remove(id);
   }
 }

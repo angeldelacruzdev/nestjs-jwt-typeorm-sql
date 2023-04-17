@@ -1,14 +1,12 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
-import { Public } from './common/decorator';
- 
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
 
-@Controller('/')
+@Controller()
 export class AppController {
-  constructor() {}
+  constructor(private readonly appService: AppService) {}
 
-  @Public()
-  @Get('files/:file')
-  async files(@Param('file') file: string, @Res() res) {
-    return res.sendFile(file, { root: './files' });
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
   }
 }
