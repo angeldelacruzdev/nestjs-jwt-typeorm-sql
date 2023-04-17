@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 
 import * as bcrypt from 'bcrypt';
 
@@ -6,47 +6,88 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { Register } from './../inferfaces/register.interface';
-import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
-  async create(createUserDto: CreateUserDto) {
-    const hash = await this.hashPassword(createUserDto.password);
-    createUserDto.password = hash;
-    return await this.usersRepository.save(createUserDto);
+  constructor(private readonly entityManager: EntityManager) {}
+
+  async create(dto: CreateUserDto) {
+    const hash = await this.hashPassword(dto.password);
+    dto.password = hash;
+
+    let result = await this.entityManager.query(
+      'call InsertarUsuarios(?,?,?,?,?)',
+      [0, dto.nombre, dto.email, dto.password, 2],
+    );
+
+    return result;
   }
 
   async register(createUserDto: Register) {
     const hash = await this.hashPassword(createUserDto.password);
     createUserDto.password = hash;
 
-    return await this.usersRepository.save(createUserDto);
+    // return await this.usersRepository.save(createUserDto);
   }
 
-  async findOneByEmail(email: string): Promise<User | undefined> {
-    return this.usersRepository.findOneBy({ email: email });
+  async findOneByEmail(email: string) {
+    try {
+      let result = await this.entityManager.query('call findByCuenta(?)', [
+        email,
+      ]);
+
+      return result[0][0];
+    } catch (error) {
+      return new HttpException(`Error en el servidor: ${error.message}`, 401);
+    }
   }
 
-  async findAll() {
-    return await this.usersRepository.find();
+  async findMany() {
+    const result = await this.entityManager.query('call getUsuariosAll()');
+
+    if (result.length > 0) {
+      return result.find((e: any) => e !== undefined) || [];
+    }
+
+    return [];
   }
 
   async findOne(id: number) {
-    return await this.usersRepository.findOneBy({ id: id });
+    let result = await this.entityManager.query(
+      `	SELECT
+    a.id,
+    a.nombre,
+    a.email,
+    a.contrasena,
+    b.id as tipo,
+    b.descripcion
+  FROM
+    usuarios a INNER JOIN tipo b ON a.tipo_id=b.id
+    WHERE a.id =? AND a.estado=1;`,
+      [id],
+    );
+
+    if (result.length > 0) {
+      return result.find((e: any) => e !== undefined) || null;
+    }
+
+    return null;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    return await this.usersRepository.update(id, updateUserDto);
+    // return await this.usersRepository.update(id, updateUserDto);
   }
 
   async remove(id: number) {
-    return await this.usersRepository.delete(id);
+    try {
+      await this.entityManager.query('call BloquearUsuarios(?)', [id]);
+      return {
+        ok: 200,
+        message: 'Eliminado con éxito.',
+      };
+    } catch (error) {}
   }
 
   async hashPassword(password: string) {

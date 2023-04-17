@@ -11,7 +11,6 @@ import {
   Body,
   Controller,
   Post,
-  Request,
   UseGuards,
   Get,
   HttpStatus,
@@ -35,7 +34,7 @@ export class AuthController {
   @Public()
   @Get('/register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() dto: CreateUserDto): Promise<Tokens> {
+  async register(@Body() dto: CreateUserDto) {
     return await this.authService.register(dto);
   }
 
@@ -54,5 +53,10 @@ export class AuthController {
     @GetCurrentUserId() userId: number,
   ) {
     return await this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Get('profile')
+  async profile(@GetCurrentUser() user: any) {
+    return user;
   }
 }

@@ -1,6 +1,6 @@
 import { CreateUserDto } from './../users/dto/create-user.dto';
 import { UsersService } from './../users/users.service';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Tokens } from './../types';
@@ -13,21 +13,18 @@ export class AuthService {
   ) {}
 
   //iniciar sesión
-  async login(dto: AuthDto): Promise<Tokens> {
+  async login(dto: AuthDto) {
     const user = await this.userService.findOneByEmail(dto.email);
 
     if (!user) throw new ForbiddenException('Access Denied.');
 
-    const passwordMatches = await bcrypt.compare(dto.password, user.password);
+    const passwordMatches = await bcrypt.compare(dto.password, user.contrasena);
 
     if (!passwordMatches) throw new ForbiddenException('Access Denied.');
 
     const tokens = await this.getTokens(user.id, user.email);
 
-    const rtHash = await this.hashPassword(tokens.refresh_token);
-
-    await this.userService.update(user.id, { hashdRt: rtHash });
-    return tokens;
+    return { name: user.nombre, id: user.id, tipo: user.tipo, ...tokens };
   }
 
   //Cerrar sesión
@@ -47,26 +44,24 @@ export class AuthService {
 
     const tokens = await this.getTokens(user.id, user.email);
 
-    const rtHash = await this.hashPassword(tokens.refresh_token);
-
-    await this.userService.update(user.id, { hashdRt: rtHash });
-    return tokens;
+    return { name: user.nombre, id: user.id, tipo: user.tipo, ...tokens };
   }
 
   //Registro de usuario
-  async register(dto: CreateUserDto): Promise<Tokens> {
-    dto.password = await this.hashPassword(dto.password);
+  async register(dto: CreateUserDto) {
+    try {
+      const user = await this.userService.findOneByEmail(dto.email);
 
-    
+      if (user?.email === dto.email) {
+        return new HttpException('Ya existe esta cuenta.', 401);
+      }
 
-    const user = await this.userService.create(dto);
+      await this.userService.create(dto);
 
-    const tokens = await this.getTokens(user.id, user.email);
+      const tokens = await this.getTokens(user.id, user.email);
 
-    const rtHash = await this.hashPassword(tokens.refresh_token);
-
-    await this.userService.update(user.id, { hashdRt: rtHash });
-    return tokens;
+      return tokens;
+    } catch (error) {}
   }
 
   //Generar tokens de acceso y de refrescar.
@@ -96,7 +91,6 @@ export class AuthService {
 
     return {
       access_token: at,
-      refresh_token: rt,
     };
   }
 
