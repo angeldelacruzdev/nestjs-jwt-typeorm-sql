@@ -78,7 +78,7 @@ export class AuthService {
           email,
         },
         {
-          secret: 'at-secret',
+          secret: process.env.JWT_SECRET,
           expiresIn: '24h',
         },
       ),
@@ -88,7 +88,7 @@ export class AuthService {
           email,
         },
         {
-          secret: 'rt-secret',
+          secret: process.env.R_JWT_SECRET,
           expiresIn: '30d',
         },
       ),
