@@ -1,17 +1,18 @@
-import { GetCurrentUser } from './../common/decorator/get-current-user.decorator';
-import { RtGuard } from './../common/guards/rt.guard';
-import { GetCurrentUserId } from './../common/decorator/get-current-user-id.decorator';
-import { Tokens } from './../types/tokens.type';
 import { CreateUserDto } from './../users/dto/create-user.dto';
-import { AuthDto } from './../dto/auth.dto';
-import { Public } from './../common/decorator/public.decorator';
 import { AuthService } from './auth.service';
+
+import { Public } from '@/common-x/decorator';
+import { GetCurrentUser } from '@/common-x/decorator';
+import { RtGuard } from '@/common-x/guards';
+import { GetCurrentUserId } from '@/common-x/decorator';
+
+import { AuthDto } from './../dto/auth.dto';
+import { Tokens } from './../types/tokens.type';
 
 import {
   Body,
   Controller,
   Post,
-  Request,
   UseGuards,
   Get,
   HttpStatus,
