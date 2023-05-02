@@ -1,8 +1,7 @@
-import { UpdateUserDto } from './../users/dto/update-user.dto';
-import { CreateUserDto } from './../users/dto/create-user.dto';
-import { verify } from 'crypto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { User } from '../entities/user.entity';
 
 export class UserRepository extends Repository<User> {
   async findByEmail(email: string) {
