@@ -1,12 +1,15 @@
-FROM node:18-alpine
+FROM node:19-alpine
 
-WORKDIR /src/app
+WORKDIR /app
 
 COPY . .
+
 
 RUN npm i -g @nestjs/cli
 
 RUN npm ci --omit=dev
+
+RUN npm install -D ts-loader
 
 RUN  npm run build
 
