@@ -1,0 +1,28 @@
+{
+    "folders": [
+      {
+        "path": "."
+      }
+    ],
+    "settings": {
+      "launch": {
+        "configurations": [
+          {
+            "type": "node",
+            "request": "attach",
+            "name": "Debug: sample-api",
+            "remoteRoot": "/usr/src/app",
+            "localRoot": "${workspaceFolder}",
+            "protocol": "inspector",
+            "port": 9229,
+            "restart": true,
+            "address": "0.0.0.0",
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true
+          }
+        ],
+        "compounds": []
+      }
+    }
+  }

@@ -15,10 +15,13 @@ services:
       - "3306:3306"
   nestjs-api:
     image: nestjs-api
+    volumes:
+      - ./src:/usr/src/app/src
     env_file:
       - .env
     ports:
       - "3000:3000"
+      - "9229:9229"
     depends_on:
       - mariadb
     networks:
