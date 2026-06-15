@@ -1,32 +1,40 @@
-version: '3.9'
 services:
   mariadb:
-    image:  mariadb:latest
+    image: mariadb:latest
     networks:
-      - mariadb
+      - app-network
     volumes:
-      - /data/mariadb:/data/mariadb
+      - mariadb-data:/var/lib/mysql
     environment:
       MARIADB_ROOT_PASSWORD: admin
       MARIADB_DATABASE: cats_shop
-      MARIADB_USER: root
       MARIADB_PASSWORD: admin
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   nestjs-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: nestjs-api
     env_file:
       - .env
     ports:
-      - "3000:3000"
+      - "8081:3000"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     networks:
-      - mariadb
+      - app-network
 
 networks:
-  mariadb:
+  app-network:
     driver: bridge
 
-
-
+volumes:
+  mariadb-data:

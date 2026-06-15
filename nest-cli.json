@@ -1,17 +1,7 @@
 {
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
-  "projects": {
-    "common-x": {
-      "type": "library",
-      "root": "libs/common-x",
-      "entryFile": "index",
-      "sourceRoot": "libs/common-x/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/common-x/tsconfig.lib.json"
-      }
-    }
-  },
+  "projects": {},
   "compilerOptions": {
     "webpack": true
   }

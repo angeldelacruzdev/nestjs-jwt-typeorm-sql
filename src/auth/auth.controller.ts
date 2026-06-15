@@ -1,59 +1,62 @@
-import { CreateUserDto } from './../users/dto/create-user.dto';
-import { AuthService } from './auth.service';
-
-import { Public } from '@/common-x/decorator';
-import { GetCurrentUser } from '@/common-x/decorator';
-import { RtGuard } from '@/common-x/guards';
-import { GetCurrentUserId } from '@/common-x/decorator';
-
-import { AuthDto } from './../dto/auth.dto';
-import { Tokens } from './../types/tokens.type';
-
-import {
+﻿import {
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Post,
   UseGuards,
-  Get,
-  HttpStatus,
-  HttpCode,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller({
-  path: 'auth',
-  version: '1.0.2',
-})
+import { AuthService } from './auth.service';
+import { AuthDto } from './../dto/auth.dto';
+import { CreateUserDto } from './../users/dto/create-user.dto';
+import { Tokens } from './../types/tokens.type';
+
+import { Public, GetCurrentUser, GetCurrentUserId } from '../common/decorators';
+import { RtGuard } from '../common/guards';
+
+@ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('/login')
+  @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Iniciar sesión' })
+  @ApiResponse({ status: 200, description: 'Tokens de acceso y refresco' })
+  @ApiBody({ type: AuthDto })
   async login(@Body() dto: AuthDto) {
-    return await this.authService.login(dto);
+    return this.authService.login(dto);
   }
 
   @Public()
-  @Get('/register')
+  @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Registrar nuevo usuario' })
+  @ApiResponse({ status: 201, description: 'Usuario creado y tokens retornados' })
   async register(@Body() dto: CreateUserDto): Promise<Tokens> {
-    return await this.authService.register(dto);
+    return this.authService.register(dto);
   }
 
-  @Post('/logout')
+  @Post('logout')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cerrar sesión' })
   async logout(@GetCurrentUserId() userId: number) {
-    return await this.authService.logout(userId);
+    return this.authService.logout(userId);
   }
 
   @Public()
   @UseGuards(RtGuard)
-  @Post('/refresh')
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refrescar tokens' })
   async refreshTokens(
     @GetCurrentUser('refreshToken') refreshToken: string,
     @GetCurrentUserId() userId: number,
   ) {
-    return await this.authService.refreshTokens(userId, refreshToken);
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 }

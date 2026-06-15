@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from '../decorator';
+import { IS_PUBLIC_KEY } from '../decorators';
 
 @Injectable()
 export class AtGuard extends AuthGuard('jwt') {
@@ -25,7 +25,6 @@ export class AtGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user, info) {
-    // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw err || new UnauthorizedException('Access Denied.');
     }

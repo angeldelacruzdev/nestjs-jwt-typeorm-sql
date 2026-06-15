@@ -1,18 +1,14 @@
-FROM node:19-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm i -g @nestjs/cli
-
-RUN npm ci --omit=dev
-
-RUN npm install -D ts-loader
+RUN npm install
 
 COPY . .
 
-RUN  npm run build
+RUN npm run build
 
 USER node
 

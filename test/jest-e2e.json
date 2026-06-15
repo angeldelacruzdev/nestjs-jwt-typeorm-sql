@@ -10,10 +10,5 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "moduleNameMapper": {
-    "yes/common-x/(.*)": "<rootDir>/../libs/common-x/src/$1",
-    "yes/common-x": "<rootDir>/../libs/common-x/src",
-    "@/common-x/(.*)": "<rootDir>/../libs/common-x/src/$1",
-    "@/common-x": "<rootDir>/../libs/common-x/src"
-  }
+  "moduleNameMapper": {}
 }
